@@ -49,3 +49,7 @@ DBMS PROJECT/
 | VIII | ER Model, FK, Relationships | `schema.sql` + ER diagram |
 | IX | INNER/LEFT/RIGHT/CROSS/SELF JOIN | `queries.sql` Module IX section |
 | X | Views, Indexes, Subqueries, EXPLAIN | `views_indexes.sql`, `queries.sql` |
+
+
+live demo :
+https://skandapurvaj.github.io/College-event-registration-system-/
