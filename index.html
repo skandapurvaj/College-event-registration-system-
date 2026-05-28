@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>College Event Registration System</title>
+  <meta name="description" content="A comprehensive DBMS-powered College Event Registration System managing events, students, teams, scores, and certificates."/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎓</div>
+    <span>College Event<br>Registration System</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-link active" data-page="dashboard"     onclick="navigate('dashboard')"><span class="icon">🏠</span> Dashboard</a>
+    <a class="nav-link"       data-page="events"         onclick="navigate('events')"><span class="icon">📅</span> Events</a>
+    <a class="nav-link"       data-page="registrations"  onclick="navigate('registrations')"><span class="icon">📝</span> Registrations</a>
+    <a class="nav-link"       data-page="teams"          onclick="navigate('teams')"><span class="icon">👥</span> Teams</a>
+    <a class="nav-link"       data-page="participants"   onclick="navigate('participants')"><span class="icon">🎓</span> Participants</a>
+    <a class="nav-link"       data-page="results"        onclick="navigate('results')"><span class="icon">🏆</span> Results</a>
+    <a class="nav-link"       data-page="certificates"   onclick="navigate('certificates')"><span class="icon">📜</span> Certificates</a>
+
+    <div class="nav-section-label">Analytics</div>
+    <a class="nav-link" data-page="leaderboard" onclick="navigate('leaderboard')"><span class="icon">📊</span> Leaderboard</a>
+    <a class="nav-link" data-page="analytics"   onclick="navigate('analytics')"><span class="icon">📈</span> Event Analytics</a>
+
+    <div class="nav-section-label">System</div>
+    <a class="nav-link" data-page="users"    onclick="navigate('users')"><span class="icon">👤</span> Users</a>
+    <a class="nav-link" data-page="settings" onclick="navigate('settings')"><span class="icon">⚙️</span> Settings</a>
+  </nav>
+
+  <div class="sidebar-banner">
+    <p>🏅 College Events</p>
+    <div class="tagline">Organize. Participate.<br>Compete. Win.</div>
+  </div>
+</aside>
+
+<!-- ══════════════ MAIN WRAPPER ══════════════ -->
+<div class="main-wrapper">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+    <div class="topbar-actions">
+      <button class="topbar-badge" title="Notifications">🔔<span class="badge-dot"></span></button>
+      <div class="user-info">
+        <div class="avatar">A</div>
+        <div><span>Admin</span><br><small>Administrator</small></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <section class="page-content active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📅</div>
+        <div><input class="stat-value-input" type="number" id="stat-events" value="5" title="Click to edit"/><div class="stat-label">Total Events<br><small>Active &amp; Upcoming</small></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">👥</div>
+        <div><input class="stat-value-input" type="number" id="stat-participants" value="75" title="Click to edit"/><div class="stat-label">Total Participants<br><small>Students Registered</small></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">🏅</div>
+        <div><input class="stat-value-input" type="number" id="stat-teams" value="17" title="Click to edit"/><div class="stat-label">Total Teams<br><small>Teams Registered</small></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">🏆</div>
+        <div><input class="stat-value-input" type="number" id="stat-completed" value="5" title="Click to edit"/><div class="stat-label">Events Completed<br><small>Completed Events</small></div></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- Upcoming Events -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Upcoming Events</span>
+          <a class="card-link" onclick="navigate('events')">View All →</a>
+        </div>
+        <div class="card-body" id="upcoming-events-list"></div>
+      </div>
+
+      <!-- Leaderboard preview -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Leaderboard (Hackathon 2024)</span>
+          <a class="card-link" onclick="navigate('leaderboard')">View Full Leaderboard →</a>
+        </div>
+        <div class="card-body">
+          <table class="lb-table" id="dash-leaderboard"></table>
+          <br>
+          <button class="btn btn-outline btn-block" onclick="navigate('leaderboard')">View Full Leaderboard</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid three">
+      <!-- Donut chart -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Registration Status</span></div>
+        <div class="card-body">
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#EEF2FF" stroke-width="18"/>
+              <circle id="donut-registered" cx="55" cy="55" r="40" fill="none" stroke="#4361EE" stroke-width="18"
+                      stroke-dasharray="178 251" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+              <circle id="donut-team" cx="55" cy="55" r="40" fill="none" stroke="#06D6A0" stroke-width="18"
+                      stroke-dasharray="43 251" stroke-dashoffset="-178" transform="rotate(-90 55 55)"/>
+              <circle id="donut-pending" cx="55" cy="55" r="40" fill="none" stroke="#FFB703" stroke-width="18"
+                      stroke-dasharray="29 251" stroke-dashoffset="-221" transform="rotate(-90 55 55)"/>
+              <text x="55" y="50" text-anchor="middle" font-size="14" font-weight="800" fill="#1A1A2E" id="donut-total">22</text>
+              <text x="55" y="65" text-anchor="middle" font-size="9" fill="#6B7280">Total</text>
+            </svg>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate eligibility -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏅 Certificate Eligibility</span></div>
+        <div class="card-body">
+          <table class="cert-table">
+            <thead><tr><th>Category</th><th>Count</th></tr></thead>
+            <tbody id="cert-summary-body"></tbody>
+          </table>
+          <br>
+          <button class="btn btn-outline btn-block" onclick="navigate('certificates')">View Eligible Participants</button>
+        </div>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Participation Overview</span>
+          <select class="form-control form-select" style="width:140px;padding:4px 28px 4px 8px;font-size:11px;">
+            <option>This Semester</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="bar-chart" id="bar-chart"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EVENTS PAGE ── -->
+  <section class="page-content" id="page-events">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control" id="event-search" placeholder="Search events..." oninput="renderEventsTable()"/>
+      </div>
+      <select class="form-control form-select" id="event-type-filter" onchange="renderEventsTable()" style="width:160px;">
+        <option value="">All Types</option>
+        <option>Hackathon</option><option>CodeContest</option>
+        <option>Workshop</option><option>Gaming</option>
+        <option>Quiz</option><option>Presentation</option>
+      </select>
+      <select class="form-control form-select" id="event-status-filter" onchange="renderEventsTable()" style="width:150px;">
+        <option value="">All Status</option>
+        <option>Upcoming</option><option>Ongoing</option>
+        <option>Completed</option><option>Cancelled</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-add-event')">+ Add Event</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Event Name</th><th>Type</th><th>Venue</th><th>Date</th><th>Capacity</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="events-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PARTICIPANTS PAGE ── -->
+  <section class="page-content" id="page-participants">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control" id="student-search" placeholder="Search students..." oninput="renderStudentsTable()"/>
+      </div>
+      <select class="form-control form-select" id="dept-filter" onchange="renderStudentsTable()" style="width:150px;">
+        <option value="">All Departments</option>
+        <option>CSE</option><option>ECE</option><option>IT</option><option>MECH</option>
+      </select>
+      <select class="form-control form-select" id="year-filter" onchange="renderStudentsTable()" style="width:120px;">
+        <option value="">All Years</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-add-student')">+ Add Student</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Dept</th><th>Year</th><th>Gender</th><th>Events</th><th>Action</th></tr></thead>
+          <tbody id="students-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REGISTRATIONS PAGE ── -->
+  <section class="page-content" id="page-registrations">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control" id="reg-search" placeholder="Search registrations..." oninput="renderRegsTable()"/>
+      </div>
+      <select class="form-control form-select" id="reg-event-filter" onchange="renderRegsTable()" style="width:200px;">
+        <option value="">All Events</option>
+      </select>
+      <select class="form-control form-select" id="reg-status-filter" onchange="renderRegsTable()" style="width:150px;">
+        <option value="">All Status</option>
+        <option>Registered</option><option>Confirmed</option>
+        <option>Cancelled</option><option>Completed</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-add-reg')">+ New Registration</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Student</th><th>Event</th><th>Type</th><th>Team</th><th>Status</th><th>Attendance</th><th>Date</th></tr></thead>
+          <tbody id="regs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TEAMS PAGE ── -->
+  <section class="page-content" id="page-teams">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control" id="team-search" placeholder="Search teams..." oninput="renderTeamsTable()"/>
+      </div>
+      <select class="form-control form-select" id="team-event-filter" onchange="renderTeamsTable()" style="width:200px;">
+        <option value="">All Events</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-add-team')">+ Create Team</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Team Name</th><th>Event</th><th>Leader</th><th>Members</th><th>Size</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="teams-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RESULTS PAGE ── -->
+  <section class="page-content" id="page-results">
+    <div class="filter-bar">
+      <select class="form-control form-select" id="result-event-filter" onchange="renderResultsTable()" style="width:220px;">
+        <option value="">All Events</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-add-result')">+ Add Result</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>Rank</th><th>Student</th><th>Event</th><th>Team</th><th>Score</th><th>Penalty</th><th>Final Score</th><th>Time (min)</th></tr></thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CERTIFICATES PAGE ── -->
+  <section class="page-content" id="page-certificates">
+    <div class="filter-bar">
+      <select class="form-control form-select" id="cert-event-filter" onchange="renderCertsTable()" style="width:220px;">
+        <option value="">All Events</option>
+      </select>
+      <select class="form-control form-select" id="cert-type-filter" onchange="renderCertsTable()" style="width:160px;">
+        <option value="">All Types</option>
+        <option>Winner</option><option>Participation</option><option>None</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>Cert #</th><th>Student</th><th>Event</th><th>Type</th><th>Score</th><th>Rank</th><th>Issued</th><th>Status</th></tr></thead>
+          <tbody id="certs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LEADERBOARD PAGE ── -->
+  <section class="page-content" id="page-leaderboard">
+    <div class="filter-bar">
+      <select class="form-control form-select" id="lb-event-filter" onchange="renderLeaderboard()" style="width:240px;">
+        <option value="1">Smart India Hackathon 2024</option>
+        <option value="2">CodeQuest Programming Contest</option>
+      </select>
+    </div>
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏆 Team Leaderboard</span></div>
+        <div class="card-body">
+          <table class="lb-table"><thead><tr><th>Rank</th><th>Team Name</th><th>Event</th><th>Total Score</th></tr></thead>
+          <tbody id="lb-team-tbody"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🎯 Individual Leaderboard</span></div>
+        <div class="card-body">
+          <table class="lb-table"><thead><tr><th>Rank</th><th>Student</th><th>Dept</th><th>Score</th></tr></thead>
+          <tbody id="lb-ind-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ANALYTICS PAGE ── -->
+  <section class="page-content" id="page-analytics">
+    <div class="stats-grid" id="analytics-stats"></div>
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏫 Department Performance</span></div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead><tr><th>Department</th><th>Students</th><th>Events</th><th>Avg Score</th><th>Total Score</th><th>Best Score</th></tr></thead>
+            <tbody id="dept-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">📅 Events Summary</span></div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead><tr><th>Event</th><th>Type</th><th>Participants</th><th>Teams</th><th>Status</th></tr></thead>
+            <tbody id="event-summary-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── USERS PAGE ── -->
+  <section class="page-content" id="page-users">
+    <div class="card">
+      <div class="card-header"><span class="card-title">👤 Staff / Organizers</span></div>
+      <div class="card-body">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th></tr></thead>
+          <tbody id="staff-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SETTINGS PAGE ── -->
+  <section class="page-content" id="page-settings">
+    <div class="card" style="max-width:520px;">
+      <div class="card-header"><span class="card-title">⚙️ System Settings</span></div>
+      <div class="card-body">
+        <div class="form-group"><label class="form-label">Institution Name</label><input class="form-control" value="ABC College of Engineering"/></div>
+        <div class="form-group"><label class="form-label">Academic Year</label><input class="form-control" value="2024-2025"/></div>
+        <div class="form-group"><label class="form-label">Admin Email</label><input class="form-control" value="admin@college.edu"/></div>
+        <div class="form-group"><label class="form-label">Max Team Size</label><input class="form-control" type="number" value="5"/></div>
+        <button class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end main-wrapper -->
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Add Event Modal -->
+<div class="modal-overlay" id="modal-add-event">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Add New Event</span>
+      <button class="modal-close" onclick="closeModal('modal-add-event')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Event Name *</label><input class="form-control" id="new-event-name" placeholder="e.g. Tech Fest 2025"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Type *</label>
+        <select class="form-control form-select" id="new-event-type">
+          <option>Hackathon</option><option>CodeContest</option><option>Workshop</option>
+          <option>Gaming</option><option>Quiz</option><option>Presentation</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-control" type="date" id="new-event-date"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Venue *</label><input class="form-control" id="new-event-venue" placeholder="e.g. Auditorium Block A"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Max Participants</label><input class="form-control" type="number" id="new-event-cap" value="50"/></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-control form-select" id="new-event-status">
+          <option>Upcoming</option><option>Ongoing</option><option>Completed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" id="new-event-desc" rows="2"></textarea></div>
+    <button class="btn btn-primary btn-block" onclick="addEvent()">Create Event</button>
+  </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="modal-add-student">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Add New Student</span>
+      <button class="modal-close" onclick="closeModal('modal-add-student')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="new-s-name" placeholder="Full Name"/></div>
+      <div class="form-group"><label class="form-label">Email *</label><input class="form-control" id="new-s-email" type="email" placeholder="email@college.com"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Department *</label>
+        <select class="form-control form-select" id="new-s-dept">
+          <option>CSE</option><option>ECE</option><option>IT</option><option>MECH</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Year *</label>
+        <select class="form-control form-select" id="new-s-year">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-control" id="new-s-contact" placeholder="10-digit mobile"/></div>
+      <div class="form-group"><label class="form-label">Gender</label>
+        <select class="form-control form-select" id="new-s-gender">
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addStudent()">Register Student</button>
+  </div>
+</div>
+
+<!-- Add Registration Modal -->
+<div class="modal-overlay" id="modal-add-reg">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ New Registration</span>
+      <button class="modal-close" onclick="closeModal('modal-add-reg')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex; justify-content:space-between;">
+        <span>Student *</span>
+        <a href="#" style="color:#4361EE; font-size:12px; text-decoration:none;" onclick="closeModal('modal-add-reg'); openModal('modal-add-student')">+ Add New Student</a>
+      </label>
+      <input type="text" class="form-control" id="new-reg-student-search" placeholder="Search by name or department..." oninput="filterRegStudents()" style="margin-bottom: 5px;">
+      <select class="form-control form-select" id="new-reg-student" size="4"></select>
+    </div>
+    <div class="form-group"><label class="form-label">Event *</label>
+      <select class="form-control form-select" id="new-reg-event"></select>
+    </div>
+    <div class="form-group"><label class="form-label">Registration Type</label>
+      <select class="form-control form-select" id="new-reg-type">
+        <option>Individual</option><option>Team</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addRegistration()">Register</button>
+  </div>
+</div>
+
+<!-- Add Team Modal -->
+<div class="modal-overlay" id="modal-add-team">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Create Team</span>
+      <button class="modal-close" onclick="closeModal('modal-add-team')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Team Name *</label><input class="form-control" id="new-team-name"/></div>
+    <div class="form-group"><label class="form-label">Event *</label>
+      <select class="form-control form-select" id="new-team-event"></select>
+    </div>
+    <div class="form-group"><label class="form-label">Team Leader *</label>
+      <select class="form-control form-select" id="new-team-leader"></select>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addTeam()">Create Team</button>
+  </div>
+</div>
+
+<!-- Add Result Modal -->
+<div class="modal-overlay" id="modal-add-result">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Add Result</span>
+      <button class="modal-close" onclick="closeModal('modal-add-result')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Event *</label>
+      <select class="form-control form-select" id="new-res-event"></select>
+    </div>
+    <div class="form-group"><label class="form-label">Student *</label>
+      <select class="form-control form-select" id="new-res-student"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Score (0-100)</label><input class="form-control" type="number" id="new-res-score" min="0" max="100"/></div>
+      <div class="form-group"><label class="form-label">Penalty Points</label><input class="form-control" type="number" id="new-res-penalty" value="0" min="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Rank</label><input class="form-control" type="number" id="new-res-rank" min="1"/></div>
+      <div class="form-group"><label class="form-label">Completion Time (min)</label><input class="form-control" type="number" id="new-res-time"/></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addResult()">Submit Result</button>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="api-bridge.js"></script>
+<script src="app.js"></script>
+<script>
+  // Load data from MySQL APIs on page load
+  document.addEventListener('DOMContentLoaded', async () => {
+    const loaded = await loadDatabaseFromAPIs();
+    if (!loaded) {
+      console.warn('Using fallback mock database');
+    }
+    renderDashboard();
+  });
+</script>
+</body>
+</html>
